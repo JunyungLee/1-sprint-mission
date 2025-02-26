@@ -27,8 +27,7 @@ public class UserStatus implements Serializable {
         this.createdAt = Instant.now();
         this.updatedAt = createdAt;
     }
-
-
+  
     public void update(Instant lastActiveAt) {
         boolean anyValueUpdated = false;
         if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
@@ -38,7 +37,6 @@ public class UserStatus implements Serializable {
 
         if (anyValueUpdated) {
             this.updatedAt = Instant.now();
-        }
     }
 
     public Boolean isOnline() {
