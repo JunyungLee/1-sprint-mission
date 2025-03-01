@@ -23,13 +23,13 @@ public class ChannelController {
   private final ChannelService channelService;
 
   @PostMapping("/public")
-  public ResponseEntity<Channel> create(@RequestBody PublicChannelCreate publicChannelCreate) {
+  public ResponseEntity<Channel> create(@ModelAttribute PublicChannelCreate publicChannelCreate) {
     Channel createdChannel = channelService.createChannelPublic(publicChannelCreate);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
   }
 
   @PostMapping("/private")
-  public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreate privateChannelCreate) {
+  public ResponseEntity<Channel> create(@ModelAttribute PrivateChannelCreate privateChannelCreate) {
     Channel createdChannel = channelService.createChannelPrivate(privateChannelCreate);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
   }
@@ -41,7 +41,7 @@ public class ChannelController {
     return ResponseEntity.ok(updatedChannel);
   }
 
-  @DeleteMapping
+  @DeleteMapping("/{channelId}")
   public ResponseEntity<Void> delete(@PathVariable UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity.noContent().build();

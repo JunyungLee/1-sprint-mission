@@ -28,7 +28,7 @@ public class MessageController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Message> create(
-      @RequestPart("messageCreate") MessageCreateDto messageCreateDto,
+      @ModelAttribute MessageCreateDto messageCreateDto,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
     List<BinaryContentCreateDto> attachmentRequests = Optional.ofNullable(attachments)

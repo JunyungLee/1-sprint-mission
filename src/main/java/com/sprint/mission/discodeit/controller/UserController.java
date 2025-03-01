@@ -31,18 +31,18 @@ public class UserController {
   private final UserStatusService userStatusService;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  public ResponseEntity<User> createUser(
-      @RequestPart("userCreate") UserCreate userCreate,
+  public ResponseEntity<User> createUser( //회원가입
+      @RequestPart("userCreateRequest") UserCreate userCreate,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) throws IOException {
     Optional<BinaryContentCreateDto> profileRequest = processProfile(profile);
-    User createdUser = userService.createUser(userCreate, profileRequest);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    User user = userService.createUser(userCreate, profileRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(user);
   }
 
   @PutMapping(value = "{userId}", consumes = {"multipart/form-data"})
   public ResponseEntity<User> updateUser(@PathVariable UUID userId,
-      @RequestPart("userUpdate") UserUpdate userUpdate,
+      @ModelAttribute UserUpdate userUpdate, //사용자 정보 수정
       @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException {
     Optional<BinaryContentCreateDto> profileRequest = processProfile(profile);
     User updatedUser = userService.update(userId, userUpdate, profileRequest);
@@ -50,15 +50,21 @@ public class UserController {
   }
 
   @DeleteMapping("{userId}")
-  public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
+  public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) { //사용자 삭제
     userService.delete(userId);
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping
-  public ResponseEntity<List<UserDto>> findAll() {
+  public ResponseEntity<List<UserDto>> findAll() { //전체 사용자 조회 -> userList
     List<UserDto> users = userService.findAll();
     return ResponseEntity.ok(users);
+  }
+
+  @GetMapping("{userId}")
+  public ResponseEntity<UserDto> findOneById(@PathVariable UUID userId) { //특정 사용자 조회
+    UserDto user = userService.findById(userId);
+    return ResponseEntity.ok(user);
   }
 
   @PatchMapping("{userId}/status")
