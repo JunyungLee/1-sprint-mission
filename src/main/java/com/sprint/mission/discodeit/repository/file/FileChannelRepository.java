@@ -9,59 +9,102 @@ import org.springframework.stereotype.Repository;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
-@Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
-public class FileChannelRepository extends FileRepository implements ChannelRepository {
+@Repository
+public class FileChannelRepository implements ChannelRepository {
 
-    public FileChannelRepository(@Value("${discodeit.repository.channel}")String fileDirectory){
-        super(fileDirectory);
+  private final Path DIRECTORY;
+  private final String EXTENSION = ".ser";
+
+  public FileChannelRepository(
+      @Value("${discodeit.repository.file-directory:data}") String fileDirectory
+  ) {
+    this.DIRECTORY = Paths.get(System.getProperty("user.dir"), fileDirectory,
+        Channel.class.getSimpleName());
+    if (Files.notExists(DIRECTORY)) {
+      try {
+        Files.createDirectories(DIRECTORY);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
-    @Override
-    public Channel save(Channel channel) {
-        saveToFile(resolvePath(channel.getId()), channel);
+  }
 
-        return channel;
+  private Path resolvePath(UUID id) {
+    return DIRECTORY.resolve(id + EXTENSION);
+  }
+
+  @Override
+  public Channel save(Channel channel) {
+    Path path = resolvePath(channel.getId());
+    try (
+        FileOutputStream fos = new FileOutputStream(path.toFile());
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeObject(channel);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+    return channel;
+  }
 
-    @Override
-    public Optional<Channel> findById(UUID channelId) {
-        return loadFromFile(resolvePath(channelId));
+  @Override
+  public Optional<Channel> findById(UUID id) {
+    Channel channelNullable = null;
+    Path path = resolvePath(id);
+    if (Files.exists(path)) {
+      try (
+          FileInputStream fis = new FileInputStream(path.toFile());
+          ObjectInputStream ois = new ObjectInputStream(fis)
+      ) {
+        channelNullable = (Channel) ois.readObject();
+      } catch (IOException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
+    return Optional.ofNullable(channelNullable);
+  }
 
-
-    @Override
-    public Map<UUID, Channel> findAll() {
-        Map<UUID, Channel> channelMap = new HashMap<>();
-        try (Stream<Path> pathStream = Files.walk(getDIRECTORY())) {
-            pathStream.filter(path -> path.toString().endsWith(".ser"))
-                    .forEach(path ->{
-                        Optional<Channel> channel = loadFromFile(path);
-                        channel.ifPresent(ch -> channelMap.put(ch.getId(), ch));
-                    });
-        } catch (IOException e) {
-            System.out.println("파일을 읽을 수 없습니다" + e.getMessage());
-        }
-        return channelMap;
+  @Override
+  public List<Channel> findAll() {
+    try (Stream<Path> paths = Files.list(DIRECTORY)) {
+      return paths
+          .filter(path -> path.toString().endsWith(EXTENSION))
+          .map(path -> {
+            try (
+                FileInputStream fis = new FileInputStream(path.toFile());
+                ObjectInputStream ois = new ObjectInputStream(fis)
+            ) {
+              return (Channel) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          })
+          .toList();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
+  @Override
+  public boolean existsById(UUID id) {
+    Path path = resolvePath(id);
+    return Files.exists(path);
+  }
 
-    @Override
-    public void deleteById(UUID channelId) {
-        Path path = resolvePath(channelId);
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+  @Override
+  public void deleteById(UUID id) {
+    Path path = resolvePath(id);
+    try {
+      Files.delete(path);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-
-    @Override
-    public boolean existsById(UUID channelId) {
-        Path path = resolvePath(channelId);
-        return Files.exists(path);
-    }
+  }
 }

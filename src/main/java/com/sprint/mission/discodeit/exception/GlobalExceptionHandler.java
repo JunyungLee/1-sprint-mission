@@ -8,21 +8,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler { //예외 전역적으로 처리
-
-  @ExceptionHandler(NoSuchElementException.class)
-  public ResponseEntity<String> handleEntityNotFound(NoSuchElementException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-  }
+public class GlobalExceptionHandler {
 
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+  public ResponseEntity<String> handleException(IllegalArgumentException e) {
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(e.getMessage());
+  }
+
+  @ExceptionHandler(NoSuchElementException.class)
+  public ResponseEntity<String> handleException(NoSuchElementException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(e.getMessage());
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handleGeneralException(Exception e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("An unexpected error occurred.");
+  public ResponseEntity<String> handleException(Exception e) {
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(e.getMessage());
   }
 }

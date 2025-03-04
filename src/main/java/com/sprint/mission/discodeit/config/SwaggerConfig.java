@@ -14,8 +14,8 @@ public class SwaggerConfig {
   public OpenAPI customOpenAPI() {
     return new OpenAPI()
         .info(new Info()
-            .title("Discodeit API")
-            .description("Discodeit Swagger API")
+            .title("Discodeit API문서")
+            .description("Discodeit Project Swagger API")
         )
         .servers(List.of(
             new Server().url("http://localhost:8080").description("로컬서버")
