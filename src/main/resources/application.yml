@@ -10,10 +10,5 @@ spring:
 
 discodeit:
   repository:
-    type: jcf #jdf | file
+    type: jcf #jcf | file
     file-directory: .discodeit
-
-logging:
-  level:
-    root: DEBUG
-    org.springframework: DEBUG

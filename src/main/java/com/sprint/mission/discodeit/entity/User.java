@@ -8,7 +8,6 @@ import java.util.UUID;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class User implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -16,16 +15,14 @@ public class User implements Serializable {
   private UUID id;
   private Instant createdAt;
   private Instant updatedAt;
-  //
   private String username;
   private String email;
   private String password;
-  private UUID profileId;     // BinaryContent
+  private UUID profileId;     // -> BinaryContent
 
   public User(String username, String email, String password, UUID profileId) {
     this.id = UUID.randomUUID();
     this.createdAt = Instant.now();
-    //
     this.username = username;
     this.email = email;
     this.password = password;
