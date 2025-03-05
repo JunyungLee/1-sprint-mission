@@ -23,16 +23,18 @@ public class ChannelController implements ChannelApi {
   private final ChannelService channelService;
 
   @PostMapping(path = "public")
-  public ResponseEntity<Channel> create(@RequestBody PublicChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
+  public ResponseEntity<Channel> createPublicChannel(
+      @RequestBody PublicChannelCreateRequest publicChannelCreateRequest) {
+    Channel createdChannel = channelService.createPublicChannel(publicChannelCreateRequest);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
   }
 
   @PostMapping(path = "private")
-  public ResponseEntity<Channel> create(@RequestBody PrivateChannelCreateRequest request) {
-    Channel createdChannel = channelService.create(request);
+  public ResponseEntity<Channel> createPrivateChannel(
+      @RequestBody PrivateChannelCreateRequest privateChannelCreateRequest) {
+    Channel createdChannel = channelService.createPrivateChannel(privateChannelCreateRequest);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdChannel);
