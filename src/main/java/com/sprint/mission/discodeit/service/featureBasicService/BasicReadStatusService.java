@@ -31,15 +31,15 @@ public class BasicReadStatusService implements ReadStatusService {
     UUID channelId = request.channelId();
 
     if (!userRepository.existsById(userId)) {
-      throw new NoSuchElementException("User with id " + userId + " does not exist");
+      throw new NoSuchElementException(userId + " does not exist");
     }
     if (!channelRepository.existsById(channelId)) {
-      throw new NoSuchElementException("Channel with id " + channelId + " does not exist");
+      throw new NoSuchElementException(channelId + " does not exist");
     }
     if (readStatusRepository.findAllByUserId(userId).stream()
         .anyMatch(readStatus -> readStatus.getChannelId().equals(channelId))) {
       throw new IllegalArgumentException(
-          "ReadStatus with userId " + userId + " and channelId " + channelId + " already exists");
+          "ReadStatus with " + userId + " and  " + channelId + " already exists");
     }
 
     Instant lastReadAt = request.lastReadAt();
@@ -51,7 +51,7 @@ public class BasicReadStatusService implements ReadStatusService {
   public ReadStatus find(UUID readStatusId) {
     return readStatusRepository.findById(readStatusId)
         .orElseThrow(
-            () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+            () -> new NoSuchElementException(readStatusId + " not found"));
   }
 
   @Override
@@ -65,7 +65,7 @@ public class BasicReadStatusService implements ReadStatusService {
     Instant newLastReadAt = request.newLastReadAt();
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(
-            () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
+            () -> new NoSuchElementException(readStatusId + " not found"));
     readStatus.update(newLastReadAt);
     return readStatusRepository.save(readStatus);
   }
@@ -73,7 +73,7 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   public void delete(UUID readStatusId) {
     if (!readStatusRepository.existsById(readStatusId)) {
-      throw new NoSuchElementException("ReadStatus with id " + readStatusId + " not found");
+      throw new NoSuchElementException(readStatusId + " not found");
     }
     readStatusRepository.deleteById(readStatusId);
   }

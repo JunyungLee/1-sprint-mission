@@ -32,7 +32,7 @@ public interface UserApi {
           content = @Content(schema = @Schema(implementation = User.class))
       ),
       @ApiResponse(
-          responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
+          responseCode = "400", description = "같은 email 혹은 username를 사용하는 User가 이미 존재함",
           content = @Content(examples = @ExampleObject(value = "User with email {email} already exists"))
       ),
   })

@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
-@Tag(name = "Auth", description = "인증 API")
+@Tag(name = "Auth", description = "사용자 인증 API")
 public interface AuthApi {
 
   @Operation(summary = "로그인")

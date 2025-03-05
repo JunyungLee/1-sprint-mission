@@ -21,8 +21,9 @@ public class ReadStatusController implements ReadStatusApi {
   private final ReadStatusService readStatusService;
 
   @PostMapping
-  public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
-    ReadStatus createdReadStatus = readStatusService.create(request);
+  public ResponseEntity<ReadStatus> create(
+      @RequestBody ReadStatusCreateRequest readStatusCreateRequest) {
+    ReadStatus createdReadStatus = readStatusService.create(readStatusCreateRequest);
     return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(createdReadStatus);
@@ -30,8 +31,8 @@ public class ReadStatusController implements ReadStatusApi {
 
   @PatchMapping(path = "{readStatusId}")
   public ResponseEntity<ReadStatus> update(@PathVariable("readStatusId") UUID readStatusId,
-      @RequestBody ReadStatusUpdateRequest request) {
-    ReadStatus updatedReadStatus = readStatusService.update(readStatusId, request);
+      @RequestBody ReadStatusUpdateRequest readStatusUpdateRequest) {
+    ReadStatus updatedReadStatus = readStatusService.update(readStatusId, readStatusUpdateRequest);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(updatedReadStatus);

@@ -22,7 +22,7 @@ public class BasicAuthService implements AuthService {
 
     User user = userRepository.findByUsername(username)
         .orElseThrow(
-            () -> new NoSuchElementException("User with username " + username + " not found"));
+            () -> new NoSuchElementException(username + " not found"));
 
     if (!user.getPassword().equals(password)) {
       throw new IllegalArgumentException("Wrong password");

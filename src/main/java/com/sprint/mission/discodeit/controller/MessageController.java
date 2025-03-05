@@ -54,8 +54,8 @@ public class MessageController implements MessageApi {
 
   @PatchMapping(path = "{messageId}")
   public ResponseEntity<Message> update(@PathVariable("messageId") UUID messageId,
-      @RequestBody MessageUpdateRequest request) {
-    Message updatedMessage = messageService.update(messageId, request);
+      @RequestBody MessageUpdateRequest messageUpdateRequest) {
+    Message updatedMessage = messageService.update(messageId, messageUpdateRequest);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(updatedMessage);

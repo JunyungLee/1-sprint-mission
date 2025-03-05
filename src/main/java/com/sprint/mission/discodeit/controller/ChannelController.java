@@ -40,8 +40,8 @@ public class ChannelController implements ChannelApi {
 
   @PatchMapping(path = "{channelId}")
   public ResponseEntity<Channel> update(@PathVariable("channelId") UUID channelId,
-      @RequestBody PublicChannelUpdateRequest request) {
-    Channel udpatedChannel = channelService.update(channelId, request);
+      @RequestBody PublicChannelUpdateRequest publicChannelUpdateRequest) {
+    Channel udpatedChannel = channelService.update(channelId, publicChannelUpdateRequest);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(udpatedChannel);
