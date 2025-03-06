@@ -1,27 +1,33 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.io.Serializable;
-import java.time.Instant;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
 @Getter
-public class Message implements Serializable {
+@NoArgsConstructor
+@Table(name = "messages")
+public class Message extends BaseEntity {
 
-  private static final long serialVersionUID = 1L;
-
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
+  @Column(nullable = false)
   private String content;
+  @Column(nullable = false)
   private UUID channelId;
+  @Column(nullable = false)
   private UUID authorId;
+  @ElementCollection(fetch = FetchType.LAZY)
+  @Column(name = "attachment_id")
   private List<UUID> attachmentIds;
 
   public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
     this.content = content;
     this.channelId = channelId;
     this.authorId = authorId;
@@ -33,10 +39,6 @@ public class Message implements Serializable {
     if (newContent != null && !newContent.equals(this.content)) {
       this.content = newContent;
       anyValueUpdated = true;
-    }
-
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
     }
   }
 }

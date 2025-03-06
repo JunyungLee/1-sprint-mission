@@ -1,25 +1,27 @@
 package com.sprint.mission.discodeit.entity;
 
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
 @Getter
-public class Channel implements Serializable {
+@NoArgsConstructor
+@Table(name = "channels")
+public class Channel extends BaseEntity {
 
-  private static final long serialVersionUID = 1L;
-  private UUID id;
-  private Instant createdAt;
-  private Instant updatedAt;
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private ChannelType type;
   private String name;
   private String description;
 
   public Channel(ChannelType type, String name, String description) {
-    this.id = UUID.randomUUID();
-    this.createdAt = Instant.now();
     this.type = type;
     this.name = name;
     this.description = description;
@@ -34,10 +36,6 @@ public class Channel implements Serializable {
     if (newDescription != null && !newDescription.equals(this.description)) {
       this.description = newDescription;
       anyValueUpdated = true;
-    }
-
-    if (anyValueUpdated) {
-      this.updatedAt = Instant.now();
     }
   }
 }
