@@ -14,23 +14,19 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "binaryContents")
+@Table(name = "binary_content")
 public class BinaryContent extends BaseEntity {
 
-  @Column(nullable = false)
+  @Column(name = "file_name", nullable = false, length = 255)
   private String fileName;
   @Column(nullable = false)
   private Long size;
-  @Column(nullable = false)
+  @Column(name = "contetn_type", nullable = false, length = 100)
   private String contentType;
-  @Lob // byte[]를 BLOB으로 저장
-  @Column(nullable = false)
-  private byte[] bytes;
 
-  public BinaryContent(String fileName, Long size, String contentType, byte[] bytes) {
+  public BinaryContent(String fileName, Long size, String contentType) {
     this.fileName = fileName;
     this.size = size;
     this.contentType = contentType;
-    this.bytes = bytes;
   }
 }

@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.UUID;
@@ -17,20 +20,26 @@ import lombok.NoArgsConstructor;
 @Table(name = "messages")
 public class Message extends BaseEntity {
 
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String content;
-  @Column(nullable = false)
-  private UUID channelId;
-  @Column(nullable = false)
-  private UUID authorId;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
+  private Channel channel;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", nullable = false)
+  private User user;
+
   @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(name = "message_attachements", joinColumns = @JoinColumn(name = "message_id"))
   @Column(name = "attachment_id")
   private List<UUID> attachmentIds;
 
-  public Message(String content, UUID channelId, UUID authorId, List<UUID> attachmentIds) {
+  public Message(String content, Channel channel, User user, List<UUID> attachmentIds) {
     this.content = content;
-    this.channelId = channelId;
-    this.authorId = authorId;
+    this.channel = channel;
+    this.user = user;
     this.attachmentIds = attachmentIds;
   }
 

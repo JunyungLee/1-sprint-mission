@@ -14,7 +14,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class BaseEntity {
 
@@ -23,11 +22,11 @@ public abstract class BaseEntity {
   private UUID id;
 
   @CreatedDate
-  @Column(nullable = false, updatable = false)
+  @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
 
   @LastModifiedDate
-  @Column(nullable = false)
+  @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
 }

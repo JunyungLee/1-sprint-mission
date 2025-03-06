@@ -1,9 +1,11 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -16,18 +18,17 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 50)
   private String username;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true, length = 100)
   private String email;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 255)
   private String password;
 
-  @OneToOne
+  @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "profile_id")
-  @Column
   private BinaryContent profile;
 
   // 생성자
