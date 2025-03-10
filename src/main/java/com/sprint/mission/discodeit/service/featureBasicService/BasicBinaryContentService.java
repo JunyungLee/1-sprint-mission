@@ -1,10 +1,14 @@
 package com.sprint.mission.discodeit.service.featureBasicService;
 
 import com.sprint.mission.discodeit.dto.binaryContent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.binaryContent.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,44 +20,34 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class BasicBinaryContentService implements BinaryContentService {
 
+  private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentRepository binaryContentRepository;
 
 
-  @Override
   @Transactional
-  public BinaryContent create(BinaryContentCreateRequest request) {
-    String fileName = request.fileName();
-    String contentType = request.contentType();
-    byte[] bytes = request.bytes();
-    ;
-    BinaryContent binaryContent = new BinaryContent(
-        fileName,
-        (long) bytes.length,
-        contentType
-    );
-    return binaryContentRepository.save(binaryContent);
+  @Override
+  public UUID saveContent(String fileName, Long size, String contentType, byte[] data) {
+    BinaryContent binaryContent = new BinaryContent(fileName, size, contentType);
+    BinaryContent savedContent = binaryContentRepository.save(binaryContent);
+    UUID id = savedContent.getId();
+    binaryContentStorage.put(id, data);
+    return id;
   }
 
-  @Override
-  public BinaryContent find(UUID binaryContentId) {
-    return binaryContentRepository.findById(binaryContentId)
-        .orElseThrow(() -> new NoSuchElementException(
-            binaryContentId + "not found"
-        ));
-  }
-
-  @Override
   @Transactional(readOnly = true)
-  public List<BinaryContent> findAllByIdIn(List<UUID> binaryContentIds) {
-    return binaryContentRepository.findAllByIdIn(binaryContentIds);
+  @Override
+  public ResponseEntity<?> downloadContent(BinaryContentDto dto) {
+    if (!binaryContentRepository.existsById(dto.getId())) {
+      throw new NoSuchElementException("BinaryContent not found" + dto.getId());
+    }
+    return binaryContentStorage.download(dto);
   }
 
   @Override
-  @Transactional
-  public void delete(UUID binaryContentId) {
-    if (!binaryContentRepository.existsById(binaryContentId)) {
-      throw new NoSuchElementException(binaryContentId + "not found");
+  public InputStream loadContent(UUID id) {
+    if (!binaryContentRepository.existsById(id)) {
+      throw new NoSuchElementException("BinaryContent not found" + id);
     }
-    binaryContentRepository.deleteById(binaryContentId);
+    return binaryContentStorage.get(id);
   }
 }

@@ -27,7 +27,7 @@ public class User extends BaseEntity {
   @Column(nullable = false, length = 255)
   private String password;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
 

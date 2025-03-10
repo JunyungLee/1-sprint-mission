@@ -49,7 +49,7 @@ public class BasicChannelService implements ChannelService {
     request.participantIds().forEach(userId -> {
       User user = userRepository.findById(userId)
           .orElseThrow(() -> new NoSuchElementException("User not found : " + userId));
-      readStatusRepository.save(new ReadStatus(user, channel, LocalDateTime.now()));
+      readStatusRepository.save(new ReadStatus(user, channel, Instant.now()));
     });
     return channel;
   }

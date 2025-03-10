@@ -14,7 +14,7 @@ spring:
   jpa:
     database: postgresql
     hibernate:
-      ddl-auto: none #DDL 생성 할 예정-> none 설정
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -23,9 +23,9 @@ spring:
     init:
       mode: always
 server:
-  port: 8081
+  port: 8080
 
 discodeit:
-  repository:
-    type: file #jcf | file
-    file-directory: .discodeit
+  storage:
+    local:
+      root-path: /tmp/discodeit-storage

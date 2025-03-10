@@ -34,7 +34,7 @@ public class BasicReadStatusService implements ReadStatusService {
   public ReadStatus create(ReadStatusCreateRequest request) {
     UUID userId = request.userId();
     UUID channelId = request.channelId();
-    LocalDateTime lastReadAt = request.lastReadAt();
+    Instant lastReadAt = request.lastReadAt();
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException(userId + "not found"));
@@ -64,7 +64,7 @@ public class BasicReadStatusService implements ReadStatusService {
   @Override
   @Transactional
   public ReadStatus update(UUID readStatusId, ReadStatusUpdateRequest request) {
-    LocalDateTime newLastReadAt = request.newLastReadAt();
+    Instant newLastReadAt = request.newLastReadAt();
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(() -> new NoSuchElementException(readStatusId + "not found"));
     readStatus.update(newLastReadAt);

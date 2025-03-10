@@ -14,6 +14,8 @@ public class BinaryContentDto {
   String fileName;
   Long size;
   String contentType;
-  byte[] bytes;
 
+  public BinaryContentDto(UUID binaryContentId) {
+    this.id = binaryContentId;
+  }
 }

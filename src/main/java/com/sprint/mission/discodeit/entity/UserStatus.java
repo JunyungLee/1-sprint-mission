@@ -28,14 +28,14 @@ public class UserStatus extends BaseEntity {
   private User user;
 
   @Column(name = "last_active_at", nullable = false)
-  private LocalDateTime lastActiveAt;
+  private Instant lastActiveAt;
 
-  public UserStatus(User user, LocalDateTime lastActiveAt) {
+  public UserStatus(User user, Instant lastActiveAt) {
     this.user = user;
     this.lastActiveAt = lastActiveAt;
   }
 
-  public void update(LocalDateTime lastActiveAt) {
+  public void update(Instant lastActiveAt) {
     boolean anyValueUpdated = false;
     if (lastActiveAt != null && !lastActiveAt.equals(this.lastActiveAt)) {
       this.lastActiveAt = lastActiveAt;
@@ -44,7 +44,7 @@ public class UserStatus extends BaseEntity {
   }
 
   public Boolean isOnline() {
-    LocalDateTime instantFiveMinutesAgo = LocalDateTime.now().minus(Duration.ofMinutes(5));
+    Instant instantFiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
 
     return lastActiveAt.isAfter(instantFiveMinutesAgo);
   }

@@ -7,7 +7,7 @@ import java.util.UUID;
 public record ReadStatusCreateRequest(
     UUID userId,
     UUID channelId,
-    LocalDateTime lastReadAt
+    Instant lastReadAt
 ) {
 
 }

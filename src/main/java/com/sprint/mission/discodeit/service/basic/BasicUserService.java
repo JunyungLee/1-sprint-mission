@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +65,7 @@ public class BasicUserService implements UserService {
     User createdUser = userRepository.save(user);
 
     //userStatus 생성
-    LocalDateTime now = LocalDateTime.now();
+    Instant now = Instant.now();
     UserStatus userStatus = new UserStatus(createdUser, now);
     userStatusRepository.save(userStatus);
 

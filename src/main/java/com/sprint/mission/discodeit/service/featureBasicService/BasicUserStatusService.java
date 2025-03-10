@@ -29,7 +29,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Transactional
   public UserStatus create(UserStatusCreateRequest request) {
     UUID userId = request.userId();
-    LocalDateTime lastActiveAt = request.lastActiveAt();
+    Instant lastActiveAt = request.lastActiveAt();
 
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException(userId + "not found"));
@@ -54,7 +54,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   @Transactional
   public UserStatus update(UUID userStatusId, UserStatusUpdateRequest request) {
-    LocalDateTime newLastActiveAt = request.newLastActiveAt();
+    Instant newLastActiveAt = request.newLastActiveAt();
 
     UserStatus userStatus = userStatusRepository.findById(userStatusId)
         .orElseThrow(() -> new NoSuchElementException(userStatusId + "not found"));
@@ -66,7 +66,7 @@ public class BasicUserStatusService implements UserStatusService {
   @Override
   @Transactional
   public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
-    LocalDateTime newLastActiveAt = request.newLastActiveAt();
+    Instant newLastActiveAt = request.newLastActiveAt();
     UserStatus userStatus = userStatusRepository.findById(userId)
         .orElseThrow(() -> new NoSuchElementException(userId + "not found"));
     userStatus.update(newLastActiveAt);
