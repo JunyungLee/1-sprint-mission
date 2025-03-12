@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller.api;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,10 +14,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 @Tag(name = "Channel", description = "Channel API")
 public interface ChannelApi {
@@ -29,7 +33,8 @@ public interface ChannelApi {
           content = @Content(schema = @Schema(implementation = Channel.class))
       )
   })
-  ResponseEntity<Channel> createPublicChannel(
+  @PostMapping("/public")
+  ResponseEntity<ChannelDto> createChannel(
       @Parameter(description = "Public Channel 생성 정보") PublicChannelCreateRequest request
   );
 
@@ -40,7 +45,8 @@ public interface ChannelApi {
           content = @Content(schema = @Schema(implementation = Channel.class))
       )
   })
-  ResponseEntity<Channel> createPrivateChannel(
+  @PostMapping("/private")
+  ResponseEntity<ChannelDto> createChannel(
       @Parameter(description = "Private Channel 생성 정보") PrivateChannelCreateRequest request
   );
 
@@ -59,7 +65,8 @@ public interface ChannelApi {
           content = @Content(examples = @ExampleObject(value = "Private channel cannot be updated"))
       )
   })
-  ResponseEntity<Channel> update(
+  @PatchMapping("/{channelId}")
+  ResponseEntity<ChannelDto> updateChannel(
       @Parameter(description = "수정할 Channel ID") UUID channelId,
       @Parameter(description = "수정할 Channel 정보") PublicChannelUpdateRequest request
   );
@@ -74,7 +81,8 @@ public interface ChannelApi {
           content = @Content(examples = @ExampleObject(value = "Channel with id {channelId} not found"))
       )
   })
-  ResponseEntity<Void> delete(
+  @DeleteMapping("/{channelId}")
+  ResponseEntity<Void> deleteChannel(
       @Parameter(description = "삭제할 Channel ID") UUID channelId
   );
 
@@ -85,6 +93,7 @@ public interface ChannelApi {
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)))
       )
   })
+  @GetMapping
   ResponseEntity<List<ChannelDto>> findAll(
       @Parameter(description = "조회할 User ID") UUID userId
   );

@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.dto.user.userStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.time.Instant;
-import java.time.LocalDateTime;
 
-public record UserStatusUpdateRequest(
-    Instant newLastActiveAt
-) {
+@Getter
+@AllArgsConstructor
+public class UserStatusUpdateRequest {
 
+  private Instant newLastActiveAt;
 }

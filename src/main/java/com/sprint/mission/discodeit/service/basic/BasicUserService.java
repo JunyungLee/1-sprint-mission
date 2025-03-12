@@ -1,133 +1,184 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.binaryContent.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.dto.binaryContent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.entity.status.UserStatus;
+import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
-  private final UserStatusRepository userStatusRepository;
   private final BinaryContentRepository binaryContentRepository;
   private final UserMapper userMapper;
+  private final BinaryContentStorage binaryContentStorage;
+  private final BinaryContentMapper binaryContentMapper;
 
+  @Autowired
+  private EntityManager entityManager;
 
   @Override
   @Transactional
-  public User create(UserCreateRequest userCreateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
-    String username = userCreateRequest.username();
-    String email = userCreateRequest.email();
-
-    if (userRepository.existsByEmail(email)) {
-      throw new IllegalArgumentException(email + "already exists");
+  public UserDto createUser(UserCreateRequest request, MultipartFile profile) {
+    if (request.getUsername() == null || request.getEmail() == null
+        || request.getPassword() == null) {
+      throw new IllegalArgumentException("사용자 정보를 올바르게 입력해야 합니다.");
     }
-    if (userRepository.existsByUsername(username)) {
-      throw new IllegalArgumentException(username + "already exists");
+    if (userRepository.existsByEmail(request.getEmail())) {
+      throw new IllegalArgumentException("Email already in use");
+    }
+    if (userRepository.existsByUsername(request.getUsername())) {
+      throw new IllegalArgumentException("Name already in use");
     }
 
-    //Profile Id 처리 (파일이 있을 경우)
-    BinaryContent nullableProfile = optionalProfileCreateRequest
-        .map(profileRequest -> {
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
-          return binaryContentRepository.save(binaryContent);
-        })
-        .orElse(null);
+    BinaryContent profileImage =
+        (profile != null && !profile.isEmpty()) ? saveProfile(profile) : null;
 
-    String password = userCreateRequest.password();
-    User user = new User(username, email, password, nullableProfile);
-    User createdUser = userRepository.save(user);
+    User user = new User(request.getUsername(), request.getEmail(), request.getPassword(),
+        profileImage);
+    userRepository.save(user);
 
-    //userStatus 생성
     Instant now = Instant.now();
-    UserStatus userStatus = new UserStatus(createdUser, now);
-    userStatusRepository.save(userStatus);
+    UserStatus userStatus = new UserStatus(user, now);
+    user.setStatus(userStatus);
 
-    return createdUser;
+    return userMapper.toDto(user);
+  }
+
+
+  @Override
+  @Transactional
+  public UserDto getUserById(UUID id) {
+    return userRepository.findById(id)
+        .map(userMapper::toDto)
+        .orElseThrow(() -> new IllegalArgumentException("User id : " + id + " not found"));
   }
 
   @Override
-  public UserDto find(UUID userId) {
-    return userRepository.findById(userId)
-        .map(userMapper::toDto)
-        .orElseThrow(() -> new NoSuchElementException(userId + "not found"));
+  public List<UserDto> getAllUsers() {
+    return userRepository.findAll().stream().map(userMapper::toDto).toList();
   }
 
+
   @Override
-  public List<UserDto> findAll() {
-    return userRepository.findAll()
-        .stream()
-        .map(userMapper::toDto)
-        .toList();
+  @Transactional
+  public UserDto updateUser(UUID userId, UserUpdateRequest request, MultipartFile profile) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+    BinaryContent oldProfile = user.getProfile();
+
+    if (profile != null && !profile.isEmpty()) {
+      if (oldProfile == null || !oldProfile.getFileName().equals(profile.getOriginalFilename())) {
+        if (oldProfile != null) {
+          binaryContentStorage.delete(oldProfile.getId(),
+              getFileExtension(oldProfile.getFileName()));
+          binaryContentRepository.deleteById(oldProfile.getId());
+        }
+
+        BinaryContent newProfile = saveProfile(profile);
+        user.setProfile(newProfile);
+      }
+    }
+
+    user.update(request.getNewUsername(), request.getNewEmail(), request.getNewPassword());
+    user.getStatus().update(Instant.now());
+
+    return userMapper.toDto(user);
+  }
+
+
+  private String getFileExtension(String fileName) {
+    int dotIndex = fileName.lastIndexOf(".");
+    return (dotIndex > 0) ? fileName.substring(dotIndex) : "";
   }
 
   @Override
   @Transactional
-  public User update(UUID userId, UserUpdateRequest userUpdateRequest,
-      Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
+  public void deleteUser(UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException(userId + "not found"));
+        .orElseThrow(() -> new NoSuchElementException("User not found"));
 
-    String newUsername = userUpdateRequest.newUsername();
-    String newEmail = userUpdateRequest.newEmail();
-    if (userRepository.existsByEmail(newEmail)) {
-      throw new IllegalArgumentException(newEmail + "already Exists");
+    if (user.getProfile() != null) {
+      UUID profileId = user.getProfile().getId();
+      String extension = getFileExtension(user.getProfile().getFileName());
+      binaryContentStorage.delete(profileId, extension);
+      binaryContentRepository.delete(user.getProfile());
     }
-    if (userRepository.existsByUsername(newUsername)) {
-      throw new IllegalArgumentException(newUsername + "already Exists");
+
+    userRepository.delete(user);
+  }
+
+
+  private BinaryContent saveProfile(MultipartFile profileFile) {
+    if (profileFile == null || profileFile.isEmpty()) {
+      throw new NoSuchElementException("Profile file is null or empty");
     }
-    BinaryContent nullableProfile = optionalProfileCreateRequest
-        .map(profileRequest -> {
-          Optional.ofNullable(user.getProfile()).ifPresent(binaryContentRepository::delete);
 
-          String fileName = profileRequest.fileName();
-          String contentType = profileRequest.contentType();
-          byte[] bytes = profileRequest.bytes();
-          BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
-              contentType);
-          return binaryContentRepository.save(binaryContent);
-        })
-        .orElse(null);
+    BinaryContent binaryContent = new BinaryContent(
+        profileFile.getOriginalFilename(),
+        profileFile.getSize(),
+        profileFile.getContentType()
+    );
 
-    String newPassword = userUpdateRequest.newPassword();
-    user.update(newUsername, newEmail, newPassword, nullableProfile);
-    return userRepository.save(user);
+    BinaryContent savedContent = binaryContentRepository.save(binaryContent);
+    String extension = getFileExtension(profileFile.getOriginalFilename());
+
+    try {
+      Path filePath = binaryContentStorage.put(savedContent.getId(), profileFile.getBytes(),
+          extension);
+      savedContent.setFilePath(filePath.toString());
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to save profile file", e);
+    }
+
+    return savedContent;
   }
 
   @Override
   @Transactional
-  public void delete(UUID userId) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NoSuchElementException(userId + "not found"));
-    Optional.ofNullable(user.getProfile()).ifPresent(binaryContentRepository::delete);
+  public BinaryContentDto saveProfileImage(MultipartFile profileFile) {
+    if (profileFile == null || profileFile.isEmpty()) {
+      throw new NoSuchElementException("multipartFile is null or empty");
+    }
+    BinaryContent binaryContent = new BinaryContent(
+        profileFile.getOriginalFilename(),
+        profileFile.getSize(),
+        profileFile.getContentType()
+    );
+    BinaryContent savedContent = binaryContentRepository.save(binaryContent);
 
-    userStatusRepository.deleteByUserId(userId);
-    userRepository.deleteById(userId);
+    String extension = getFileExtension(profileFile.getOriginalFilename());
+
+    try {
+      Path filePath = binaryContentStorage.put(savedContent.getId(), profileFile.getBytes(),
+          extension);
+      binaryContent.setFilePath(filePath.toString());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return binaryContentMapper.toDto(savedContent);
   }
 }

@@ -1,76 +1,82 @@
--- User 테이블
-CREATE TABLE IF NOT EXISTS users
+-- binary_contents 테이블 (파일 저장)
+CREATE TABLE binary_contents
 (
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username   VARCHAR(50)  NOT NULL UNIQUE,
-    email      VARCHAR(100) NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
-    profile_id UUID,
-    created_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_profile FOREIGN KEY (profile_id) REFERENCES binary_contents(id) ON DELETE CASCADE
-);
-
--- Channel 테이블
-CREATE TABLE IF NOT EXISTS channels
-(
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name       VARCHAR(100) NOT NULL UNIQUE,
-    description VARCHAR(500),
-    created_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
-);
-
--- Message 테이블
-CREATE TABLE IF NOT EXISTS messages
-(
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    channel_id UUID NOT NULL,
-    user_id    UUID NOT NULL,
-    content    TEXT NOT NULL,
-    created_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_channels FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE,
-    CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
-);
-
--- ReadStatus 테이블
-CREATE TABLE IF NOT EXISTS read_status
-(
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id    UUID NOT NULL,
-    message_id UUID NOT NULL,
-    last_read_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_messages FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE,
-    CONSTRAINT uq_user_message UNIQUE (user_id, message_id)
-);
-
--- BinaryContent 테이블 (파일 메타 정보만 저장)
-CREATE TABLE IF NOT EXISTS binary_content
-(
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id           UUID PRIMARY KEY,
+    created_at   TIMESTAMPTZ  NOT NULL,
     file_name    VARCHAR(255) NOT NULL,
     size         BIGINT       NOT NULL,
     content_type VARCHAR(100) NOT NULL,
-    created_at   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
+    bytes        BYTEA
 );
 
--- messageAttachments 테이블
-CREATE TABLE IF NOT EXISTS message_attachments(
-    message_id UUID NOT NULL,
+-- users 테이블
+CREATE TABLE "users"
+(
+    id         UUID PRIMARY KEY,
+    created_at TIMESTAMPTZ        NOT NULL,
+    updated_at TIMESTAMPTZ,
+    username   VARCHAR(50) UNIQUE NOT NULL,
+    email      VARCHAR(100)       NOT NULL,
+    password   VARCHAR(60)        NOT NULL,
+    profile_id UUID,
+    CONSTRAINT fk_users_profile FOREIGN KEY (profile_id) REFERENCES binary_contents (id) ON DELETE set null
+);
+
+-- channels 테이블 (채널 정보)
+CREATE TABLE channels
+(
+    id          UUID PRIMARY KEY,
+    created_at  TIMESTAMPTZ NOT NULL,
+    updated_at  TIMESTAMPTZ,
+    name        VARCHAR(100),
+    description VARCHAR(500),
+    type        VARCHAR(10) NOT NULL CHECK (type IN ('PUBLIC', 'PRIVATE'))
+);
+
+
+-- messages 테이블 (메시지 정보)
+CREATE TABLE messages
+(
+    id         UUID PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ,
+    content    TEXT,
+    channel_id UUID        NOT NULL,
+    author_id  UUID,
+    CONSTRAINT fk_messages_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE,
+    CONSTRAINT fk_messages_author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+-- user_statuses 테이블 (사용자 상태 정보)
+CREATE TABLE user_statuses
+(
+    id             UUID PRIMARY KEY,
+    created_at     TIMESTAMPTZ NOT NULL,
+    updated_at     TIMESTAMPTZ,
+    user_id        UUID        NOT NULL UNIQUE,
+    last_active_at TIMESTAMPTZ NOT NULL,
+    CONSTRAINT fk_user_statuses_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+-- read_statuses 테이블 (메시지 읽음 상태)
+CREATE TABLE read_statuses
+(
+    id           UUID PRIMARY KEY,
+    created_at   TIMESTAMPTZ NOT NULL,
+    updated_at   TIMESTAMPTZ,
+    user_id      UUID        NOT NULL,
+    channel_id   UUID        NOT NULL,
+    last_read_at TIMESTAMPTZ,
+    CONSTRAINT fk_read_statuses_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_read_statuses_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE,
+    UNIQUE (user_id, channel_id)
+);
+
+-- message_attachments 테이블 (메시지 첨부 파일)
+CREATE TABLE message_attachments
+(
+    message_id    UUID NOT NULL,
     attachment_id UUID NOT NULL,
-    PRIMARY KEY(message_id, attachment_id),
-    CONSTRAINT fk_messages FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
-    CONSTRAINT fk_attachments FOREIGN KEY (attachment_id) REFERENCES binary_content(id) ON DELETE CASCADE
-);
-
---userStatus 테이블
-CREATE TABLE IF NOT EXISTS user_statuses (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL UNIQUE,
-    last_active_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users(id) on DELETE CASCADE
+    CONSTRAINT fk_message_attachments_message FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE,
+    CONSTRAINT fk_message_attachments_attachment FOREIGN KEY (attachment_id) REFERENCES binary_contents (id) ON DELETE CASCADE
 );

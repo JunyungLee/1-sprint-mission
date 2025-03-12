@@ -3,31 +3,42 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.Getter;
+
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "binary_content")
+@Entity
+@Table(name = "binary_contents")
 public class BinaryContent extends BaseEntity {
 
-  @Column(name = "file_name", nullable = false, length = 255)
-  private String fileName;
   @Column(nullable = false)
-  private Long size;
-  @Column(name = "content_type", nullable = false, length = 100)
+  private String fileName;
+
+  @Column(nullable = false)
+  private long size;
+
+  @Column(nullable = false, length = 100)
   private String contentType;
 
+  @Column(nullable = false)
+  private String filePath = "temp_path";
 
-  public BinaryContent(String fileName, Long size, String contentType) {
+  @OneToOne(mappedBy = "profile")
+  private User user;
+
+  @ManyToOne
+  @JoinColumn(name = "message_id")
+  private Message message;
+
+  public BinaryContent(String fileName, long size, String contentType) {
     this.fileName = fileName;
     this.size = size;
     this.contentType = contentType;

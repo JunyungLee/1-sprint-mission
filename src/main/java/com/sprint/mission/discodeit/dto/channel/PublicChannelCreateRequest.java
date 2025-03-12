@@ -1,8 +1,16 @@
 package com.sprint.mission.discodeit.dto.channel;
 
-public record PublicChannelCreateRequest(
-    String name,
-    String description
-) {
+import lombok.Getter;
 
+
+@Getter
+public class PublicChannelCreateRequest {
+
+  private final String name;
+  private final String description;
+
+  public PublicChannelCreateRequest(String name, String description) {
+    this.name = name;
+    this.description = description;
+  }
 }

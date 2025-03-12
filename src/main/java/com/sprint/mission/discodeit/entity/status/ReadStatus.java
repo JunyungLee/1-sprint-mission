@@ -1,35 +1,33 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.status;
 
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
-import jakarta.persistence.CascadeType;
+import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "read_Status")
-public class ReadStatus extends BaseEntity {
+@Entity
+@Table(name = "read_statuses")
+public class ReadStatus extends BaseUpdatableEntity {
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
-  @Column(name = "last_read_at")
+
+  @Column(nullable = false)
   private Instant lastReadAt;
 
   public ReadStatus(User user, Channel channel, Instant lastReadAt) {
@@ -39,10 +37,8 @@ public class ReadStatus extends BaseEntity {
   }
 
   public void update(Instant newLastReadAt) {
-    boolean anyValueUpdated = false;
-    if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+    if (newLastReadAt != null && !newLastReadAt.isAfter(this.lastReadAt)) {
       this.lastReadAt = newLastReadAt;
-      anyValueUpdated = true;
     }
   }
 }

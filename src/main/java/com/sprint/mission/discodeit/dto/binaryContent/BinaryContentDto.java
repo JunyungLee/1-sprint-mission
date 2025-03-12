@@ -1,21 +1,20 @@
 package com.sprint.mission.discodeit.dto.binaryContent;
 
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class BinaryContentDto {
 
-  UUID id;
-  String fileName;
-  Long size;
-  String contentType;
-
-  public BinaryContentDto(UUID binaryContentId) {
-    this.id = binaryContentId;
-  }
+  private UUID id;
+  private String fileName;
+  private long size;
+  private String contentType;
+  private byte[] bytes;
 }

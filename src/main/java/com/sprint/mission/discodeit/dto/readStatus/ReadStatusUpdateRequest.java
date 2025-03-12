@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.dto.readStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.time.Instant;
-import java.time.LocalDateTime;
 
-public record ReadStatusUpdateRequest(
-    Instant newLastReadAt
-) {
+@Getter
+@AllArgsConstructor
+public class ReadStatusUpdateRequest {
 
+  private Instant newLastReadAt;
 }

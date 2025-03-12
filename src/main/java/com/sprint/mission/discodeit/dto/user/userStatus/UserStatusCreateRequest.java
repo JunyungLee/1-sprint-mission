@@ -1,12 +1,18 @@
 package com.sprint.mission.discodeit.dto.user.userStatus;
 
+import lombok.Getter;
+
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UserStatusCreateRequest(
-    UUID userId,
-    Instant lastActiveAt
-) {
+@Getter
+public class UserStatusCreateRequest {
 
+  private UUID userId;
+  private Instant createdAt;
+
+  public UserStatusCreateRequest(UUID userId, Instant createdAt) {
+    this.userId = userId;
+    this.createdAt = createdAt;
+  }
 }

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -14,13 +14,13 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
 @NoArgsConstructor
+@Entity
 @Table(name = "messages")
-public class Message extends BaseEntity {
+public class Message extends BaseUpdatableEntity {
 
-  @Column(nullable = false, columnDefinition = "TEXT")
+  @Column(nullable = false)
   private String content;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -29,25 +29,23 @@ public class Message extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "author_id", nullable = false)
-  private User user;
+  private User author;
 
   @ElementCollection(fetch = FetchType.LAZY)
-  @CollectionTable(name = "message_attachements", joinColumns = @JoinColumn(name = "message_id"))
+  @CollectionTable(name = "message_attachments", joinColumns = @JoinColumn(name = "message_id"))
   @Column(name = "attachment_id")
   private List<UUID> attachmentIds;
 
-  public Message(String content, Channel channel, User user, List<UUID> attachmentIds) {
+  public Message(String content, Channel channel, User author, List<UUID> attachmentIds) {
     this.content = content;
     this.channel = channel;
-    this.user = user;
+    this.author = author;
     this.attachmentIds = attachmentIds;
   }
 
-  public void update(String newContent) {
-    boolean anyValueUpdated = false;
-    if (newContent != null && !newContent.equals(this.content)) {
-      this.content = newContent;
-      anyValueUpdated = true;
+  public void update(String content) {
+    if (content != null && !content.equals(this.content)) {
+      this.content = content;
     }
   }
 }

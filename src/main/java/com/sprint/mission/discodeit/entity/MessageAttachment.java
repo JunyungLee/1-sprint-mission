@@ -8,7 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "message_attachements")
+@Table(name = "message_attachments")
 public class MessageAttachment extends BaseEntity {
 
   @ManyToOne(cascade = CascadeType.ALL)
