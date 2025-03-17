@@ -2,7 +2,7 @@ discodeit:
   storage:
     type: local
     local:
-      root-path: /tmp/discodeit-storage
+      root-path: .discodeit/storage
 
 spring:
   jpa:
@@ -13,10 +13,10 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 100
-  #  sql:
-  #    init:
-  #      mode: always
-  #      schema-locations: classpath:schema.sql
+    sql:
+      init:
+        mode: always
+        schema-locations: classpath:schema.sql
   profiles:
     active: local
   servlet:
@@ -40,5 +40,6 @@ logging:
     root:
     org.springframework.web: DEBUG
     org.springframework.web.servlet: DEBUG
-    org.springframework.web.multipart: DEBUG  # Multipart 파일 업로드 관련 로그
+    org.hibernate.sql: debug
+    org.hibernate.orm.jdbc.bind: trace
 

@@ -6,10 +6,10 @@ import lombok.Getter;
 public class PublicChannelUpdateRequest {
 
   private String newName;
-  private String NewDescription;
+  private String newDescription;
 
   public PublicChannelUpdateRequest(String newName, String newDescription) {
     this.newName = newName;
-    NewDescription = newDescription;
+    this.newDescription = newDescription;
   }
 }

@@ -1,42 +1,28 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.entity.status.ReadStatus;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-
-@Getter
-@Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "channels")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Channel extends BaseUpdatableEntity {
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 10)
+  @Column(nullable = false)
   private ChannelType type;
-
   @Column(length = 100)
   private String name;
-
   @Column(length = 500)
   private String description;
-
-  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<Message> messages;
-
-  @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ReadStatus> readStatuses;
 
   public Channel(ChannelType type, String name, String description) {
     this.type = type;
@@ -44,12 +30,12 @@ public class Channel extends BaseUpdatableEntity {
     this.description = description;
   }
 
-  public void update(String channelName, String description) {
-    if (channelName != null && !channelName.equals(this.name)) {
-      this.name = channelName;
+  public void update(String newName, String newDescription) {
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
     }
-    if (description != null && !description.equals(this.description)) {
-      this.description = description;
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
     }
   }
 }

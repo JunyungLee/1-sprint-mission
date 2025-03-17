@@ -1,20 +1,14 @@
 package com.sprint.mission.discodeit.mapper;
 
+
 import com.sprint.mission.discodeit.dto.user.userStatus.UserStatusDto;
 import com.sprint.mission.discodeit.entity.status.UserStatus;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class UserStatusMapper {
+@Mapper(componentModel = "spring")
+public interface UserStatusMapper {
 
-  public UserStatusDto toDto(UserStatus entity) {
-    if (entity == null) {
-      return null;
-    }
-    UserStatusDto dto = new UserStatusDto();
-    dto.setId(entity.getId());
-    dto.setUserId(entity.getUser().getId());
-    dto.setLastActiveAt(entity.getLastActiveAt());
-    return dto;
-  }
+  @Mapping(target = "userId", source = "user.id")
+  UserStatusDto toDto(UserStatus userStatus);
 }

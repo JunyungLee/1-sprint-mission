@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PrivateChannelCreateRequest {
 
-  private List<UUID> participantIds;
+  private List<UUID> participantsId;
 }

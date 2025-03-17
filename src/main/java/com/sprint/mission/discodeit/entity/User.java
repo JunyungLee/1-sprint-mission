@@ -1,50 +1,39 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.entity.status.ReadStatus;
 import com.sprint.mission.discodeit.entity.status.UserStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
 public class User extends BaseUpdatableEntity {
 
-  @Column(nullable = false, unique = true, length = 50)
+  @Column(length = 50, nullable = false, unique = true)
   private String username;
-
-  @Column(nullable = false, unique = true, length = 100)
+  @Column(length = 100, nullable = false, unique = true)
   private String email;
-
-  @Column(nullable = false, length = 60)
+  @Column(length = 60, nullable = false)
   private String password;
-
-  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-  @JsonIgnore
-  private List<Message> messages;
-
-  @OneToOne(cascade = CascadeType.MERGE)
-  @JoinColumn(name = "profile_id", referencedColumnName = "id")
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_id", columnDefinition = "uuid")
   private BinaryContent profile;
-
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+  @JsonManagedReference
+  @Setter
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private UserStatus status;
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<ReadStatus> readStatuses;
 
   public User(String username, String email, String password, BinaryContent profile) {
     this.username = username;
@@ -53,20 +42,20 @@ public class User extends BaseUpdatableEntity {
     this.profile = profile;
   }
 
-  public void setStatus(UserStatus status) {
-    this.status = status;
-    status.setUser(this);
-  }
 
-  public void update(String username, String email, String password) {
-    if (username != null && !username.equals(this.username)) {
-      this.username = username;
+  public void update(String newUsername, String newEmail, String newPassword,
+      BinaryContent newProfile) {
+    if (newUsername != null && !newUsername.equals(this.username)) {
+      this.username = newUsername;
     }
-    if (email != null && !email.equals(this.email)) {
-      this.email = email;
+    if (newEmail != null && !newEmail.equals(this.email)) {
+      this.email = newEmail;
     }
-    if (password != null && !password.equals(this.password)) {
-      this.password = password;
+    if (newPassword != null && !newPassword.equals(this.password)) {
+      this.password = newPassword;
+    }
+    if (newProfile != null) {
+      this.profile = newProfile;
     }
   }
 }

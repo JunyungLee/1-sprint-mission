@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 
 @SpringBootApplication
-@EnableJpaAuditing //자동 날짜 필드 활성화 어노테이션
+@EnableJpaAuditing
 public class DiscodeitApplication {
 
   public static void main(String[] args) {

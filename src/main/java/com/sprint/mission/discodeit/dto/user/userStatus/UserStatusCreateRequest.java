@@ -9,10 +9,10 @@ import java.util.UUID;
 public class UserStatusCreateRequest {
 
   private UUID userId;
-  private Instant createdAt;
+  private Instant lastActiveAt;
 
-  public UserStatusCreateRequest(UUID userId, Instant createdAt) {
+  public UserStatusCreateRequest(UUID userId, Instant lastActiveAt) {
     this.userId = userId;
-    this.createdAt = createdAt;
+    this.lastActiveAt = lastActiveAt;
   }
 }

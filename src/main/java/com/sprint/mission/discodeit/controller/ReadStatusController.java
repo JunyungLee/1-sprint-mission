@@ -19,34 +19,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/readStatuses")
 public class ReadStatusController implements ReadStatusApi {
 
   private final ReadStatusService readStatusService;
 
-  @Override
   @PostMapping
-  public ResponseEntity<ReadStatusDto> createReadStatus(
-      @RequestBody ReadStatusCreateRequest request) {
-    ReadStatusDto readStatus = readStatusService.create(request);
-    return ResponseEntity.ok(readStatus);
+  public ResponseEntity<ReadStatusDto> create(@RequestBody ReadStatusCreateRequest request) {
+    ReadStatusDto createdReadStatus = readStatusService.create(request);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdReadStatus);
   }
 
-  @Override
-  @PatchMapping("/{readStatusId}")
-  public ResponseEntity<ReadStatusDto> updateReadStatus(@PathVariable UUID readStatusId,
+  @PatchMapping(path = "{readStatusId}")
+  public ResponseEntity<ReadStatusDto> update(@PathVariable("readStatusId") UUID readStatusId,
       @RequestBody ReadStatusUpdateRequest request) {
     ReadStatusDto updatedReadStatus = readStatusService.update(readStatusId, request);
-    return ResponseEntity.ok(updatedReadStatus);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(updatedReadStatus);
   }
 
-  @Override
   @GetMapping
   public ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam("userId") UUID userId) {
     List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(readStatuses);
-
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(readStatuses);
   }
 }
