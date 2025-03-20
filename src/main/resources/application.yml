@@ -13,10 +13,6 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 100
-    sql:
-      init:
-        mode: always
-        schema-locations: classpath:schema.sql
   profiles:
     active: local
   servlet:
