@@ -1,0 +1,28 @@
+spring :
+  profiles:
+    active: dev #기본 활성화 프로파일(개별환경)
+
+logging:
+  level:
+    root: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers
+
+  info:
+    application:
+      name: Discodeit
+      version: 1.7.0
+    java:
+      version: 17
+    spring-boot:
+      version: 3.4.0
+
+discodeit:
+  storage:
+    type: local # local 스토리지 사용
+    local:
+      root-path: ./discodeit-storage # 실제 로컬 저장소 경로로 변경

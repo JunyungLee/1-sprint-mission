@@ -1,0 +1,29 @@
+# 운영환경
+server:
+  port: 8080
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+info:
+  datasource:
+    url: jdbc:postgresql://prod-db-server:5432/proddb
+    driver-class-name: org.postgresql.Driver
+    username: discodeit_user
+    password: discodeit1234
+  jpa:
+    ddl-auto: validate
+  storage:
+    type: s3
+    path: s3://discodeit-prod/storage
+  multipart:
+    max-file-size: 50MB
+    max-request-size: 100MB
+
+logging:
+  level:
+    root: info
+    com.sprint.mission.discodeit: info
+    org.hibernate.sql : debug
+
